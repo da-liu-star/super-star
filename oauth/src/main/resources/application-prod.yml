@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+user-service:
+  base-url: ${USER_SERVICE_BASE_URL}
+  internal-token: ${USER_INTERNAL_TOKEN}
+
+logging:
+  level:
+    org.springframework.security: INFO
