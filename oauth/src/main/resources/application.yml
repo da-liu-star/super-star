@@ -1,0 +1,26 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: oauth
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/super_star_oauth?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:oauth-schema.sql
+
+user-service:
+  base-url: ${USER_SERVICE_BASE_URL:http://localhost:9001}
+  internal-token: ${USER_INTERNAL_TOKEN:local-user-internal-token}
+
+# Optional third-party OAuth2 client registrations can be added here.
+# Keep client secrets in environment variables in deployed environments.
+
+logging:
+  level:
+    org.springframework.security: DEBUG
