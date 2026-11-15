@@ -9,13 +9,13 @@ COPY pom.xml .
 COPY common/pom.xml common/pom.xml
 COPY user/pom.xml user/pom.xml
 COPY oauth/pom.xml oauth/pom.xml
-
-RUN mvn -B -ntp -pl "${MODULE}" -am dependency:go-offline
+COPY deploy/maven/settings.xml /root/.m2/settings.xml
 
 COPY common/src common/src
 COPY ${MODULE}/src ${MODULE}/src
 
-RUN mvn -B -ntp -pl "${MODULE}" -am package
+RUN --mount=type=cache,id=maven-repo,target=/root/.m2/repository,sharing=locked \
+    mvn -B -ntp -pl "${MODULE}" -am package
 
 FROM eclipse-temurin:17-jre
 
