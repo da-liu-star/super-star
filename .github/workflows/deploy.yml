@@ -1,0 +1,61 @@
+name: Deploy Backend To Aliyun
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: super-star-backend-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Validate backend
+        run: mvn -q test
+
+      - name: Build and deploy Docker stack
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USER }}
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
+          port: ${{ secrets.ALIYUN_PORT }}
+          command_timeout: 40m
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            APP_ROOT=/opt/super-star
+            FRONTEND_DIR="$APP_ROOT/frontend"
+            FRONTEND_REPO=https://github.com/da-liu-star/super-star-web.git
+
+            mkdir -p "$APP_ROOT"
+
+            if [ ! -d "$FRONTEND_DIR/.git" ]; then
+              git clone --branch main "$FRONTEND_REPO" "$FRONTEND_DIR"
+            else
+              git -C "$FRONTEND_DIR" fetch origin main --prune
+              git -C "$FRONTEND_DIR" checkout main
+              git -C "$FRONTEND_DIR" pull --ff-only origin main
+            fi
+
+            bash "$FRONTEND_DIR/deploy/deploy-stack.sh"
