@@ -8,7 +8,7 @@ spring:
     default: dev
   sql:
     init:
-      mode: always
+      mode: never
       schema-locations: classpath:schema.sql
 
 mybatis-plus:
